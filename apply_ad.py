@@ -62,10 +62,10 @@ for folder in os.listdir(current_working_dir):
     for mp3_audio in os.listdir(current_working_dir + "/" + folder):
       if mp3_audio.endswith('.mp3'):
         # Cut first 120 seconds
-        os.system('ffmpeg -i "' + current_working_dir + '/' + folder + '/' + mp3_audio + '" -ss 0 -t 120 "front_' + mp3_audio + '"')
+        os.system('ffmpeg -y -i "' + current_working_dir + '/' + folder + '/' + mp3_audio + '" -ss 0 -t 120 "front_' + mp3_audio + '"')
 
         # Append ad.mp3 to "front_ + mp3_audio"
-        os.system('ffmpeg -i "front_' + mp3_audio + '" -i ad.mp3 -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" -b:a 64k "appended_' + mp3_audio + '"')
+        os.system('ffmpeg -y -i "front_' + mp3_audio + '" -i ad.mp3 -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" -b:a 64k "appended_' + mp3_audio + '"')
 
         # Get remaining portion of the original file (using ffseek)
         original_file_duration = os.popen('ffprobe -v quiet -show_format -print_format json -i "' + current_working_dir + '/' + folder + '/' + mp3_audio + '"').read()
@@ -75,10 +75,10 @@ for folder in os.listdir(current_working_dir):
         remaining_duration = duration - 120
 
         # Cut remaining portion using ffseek
-        os.system('ffmpeg -i "' + current_working_dir + '/' + folder + '/' + mp3_audio + '" -ss 120 -t ' + str(remaining_duration) + ' "remaining_' + mp3_audio + '"')
+        os.system('ffmpeg -y -i "' + current_working_dir + '/' + folder + '/' + mp3_audio + '" -ss 120 -t ' + str(remaining_duration) + ' "remaining_' + mp3_audio + '"')
 
         # Join "appended_ + mp3_audio" with "remaining_ + mp3_audio"
-        os.system('ffmpeg -i "appended_' + mp3_audio + '" -i "remaining_' + mp3_audio + '" -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" -b:a 64k "' + current_working_dir + '/' + folder + '/' + mp3_audio + '"')
+        os.system('ffmpeg -y -i "appended_' + mp3_audio + '" -i "remaining_' + mp3_audio + '" -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" -b:a 64k "' + current_working_dir + '/' + folder + '/' + mp3_audio + '"')
 
         # Cleanup temporary files
         os.remove("front_" + mp3_audio)
